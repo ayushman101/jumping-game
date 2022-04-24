@@ -13,7 +13,7 @@ screen=pygame.display.set_mode(WINDOW_SIZE)    #create window with window size
 
 img=pygame.image.load("IMG_20211122_165544.jpg")  #get an image
 
-img_location=(0,0)    # set image location variable
+img_location=[0,0]    # set image location variable
 
 screen.blit(img,img_location)   # add image on the window screen at image location
 
