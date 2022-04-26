@@ -1,66 +1,57 @@
-import pygame,sys
-from pygame.locals import *
+import pygame
+from sys import exit
+from pygame.locals import* 
 
-WINDOW_SIZE=(1280,720)  #set window size
+pygame.init()
 
-pygame.init()   #initialize pygame
+clock=pygame.time.Clock()
 
-clock=pygame.time.Clock()    #get clock 
+screen=pygame.display.set_mode((800,400))
 
-pygame.display.set_caption("Poseidons Dome")   #set window name
+pygame.display.set_caption('My Game')
 
-screen=pygame.display.set_mode(WINDOW_SIZE)    #create window with window size 
+sky_surface=pygame.image.load('Sky.png').convert()
+ground_surf=pygame.image.load('ground.png').convert()
 
-img=pygame.image.load("6b7e7e672f4a3c82b564aaf6850f6579-boy-with-boombox-pixel-art.png")  #get an image
+text=pygame.font.Font('Pixeltype.ttf',50)
 
-text=pygame.font.Font(None,50)
+text_surf=text.render('MY GAME',False,'black')
 
-text_surface=text.render('My Game', False, 'White')
+snail_surf=pygame.image.load('snail1.png').convert_alpha()
+snail_rect=snail_surf.get_rect(midbottom=(700,300))
 
+player_surf=pygame.image.load('player_stand.png').convert_alpha()
+player_rect=player_surf.get_rect(bottomleft=(10,300))
 
+snail_x=[700,270]
 
-img_location=[0,0]    # set image location variable
+while True:
 
-move_right=False
-move_left=False
+    for event in pygame.event.get():
+        if event.type==QUIT:
+            pygame.quit()
+            exit()
+        #if event.type==pygame.MOUSEMOTION:
+          #  if player_rect.collidepoint(event.pos)
+          #      print('collision point)
+                      
+    screen.blit(sky_surface,(0,0))
+    screen.blit(ground_surf,(0,300))
+    screen.blit(text_surf,(350,50))
 
-while True:  # game loop
     
-    screen.fill((0,0,0))  #fill screen with black colour
-    
-    screen.blit(img,img_location)   # add image on the window screen at image location
+    snail_rect.left -=4
 
-    screen.blit(text_surface,(500,50))
+    if snail_rect.right< 0:
+        snail_rect.left=800
 
-    if move_left==True:   # change x point of location
-        img_location[0]-=4   
-    if move_right==True:    #change y point of location
-        img_location[0]+=4
+   # if player_rect.colliderect(snail_rect):
+    #    print('collision')
 
-    
-    if img_location[0] > 1300:
-        img_location[0]=-200
-    if img_location[0]<-200:
-        img_location[0]=1280
-   
-    for event in pygame.event.get():  # event loop 
-        if event.type==QUIT:    # if window cross is clicked
-            pygame.quit()    # quit pygame
-            sys.exit()       # end the script
-        
-        if event.type==KEYDOWN:   #if a keyboard button was pressed down
-            if event.key==K_LEFT:  # check if button was left arrow
-                move_left=True
-            if event.key==K_RIGHT:  # check if button was right arrow
-                move_right=True
-        
-        if event.type==KEYUP:    # if the keyboard button which was pressed came back up 
-            if event.key==K_LEFT:  # check if button was left arrow 
-                move_left=False
-            if event.key==K_RIGHT:  # if button was right arrow 
-                move_right=False
+    screen.blit(snail_surf,snail_rect)
+    screen.blit(player_surf,player_rect)
 
-        
-    
-    pygame.display.update()   #update window
-    clock.tick(60)   # fps controller 
+
+
+    pygame.display.update()
+    clock.tick(60)
