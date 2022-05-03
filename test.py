@@ -2,7 +2,9 @@ from msilib.schema import Class
 import pygame
 from sys import exit
 from pygame.locals import* 
+from random import randint, choice
 
+#IMP
 class Player (pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -43,6 +45,8 @@ class Player (pygame.sprite.Sprite):
         self.apply_gravity()
         self.animation()
 
+
+#IMP
 class obstacle(pygame.sprite.Sprite):
     def __init__(self,type):                      # type argument tells us type of obstacle , fly or a snail 
         super().__init__()
@@ -66,8 +70,22 @@ class obstacle(pygame.sprite.Sprite):
             self.frames_index=0
         self.image=self.frames[int(self.frames_index)]
 
+    
+    def destroy(self):
+        if self.rect.x < -50 :
+            self.kill()
+
     def update(self):
         self.animation()
+        self.rect.x-=4
+        self.destroy()
+        
+
+def collision_sprite():    #IMP
+        if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):  #IMP
+            obstacle_group.empty()    #IMP
+            return False
+        return True
 
 
 
@@ -88,18 +106,18 @@ text=pygame.font.Font('Pixeltype.ttf',50)
 #text_rect=text_surf.get_rect(center=(400,50))
 
 #player group --> single group
-player=pygame.sprite.GroupSingle()
-player.add(Player())
+player=pygame.sprite.GroupSingle()   #IMP
+player.add(Player())    #IMP
 
 #obstacle group
-obstacle_group=pygame.sprite.Group()
+obstacle_group=pygame.sprite.Group()  #IMP
 
 
-snail_surf=pygame.transform.rotozoom(pygame.image.load('snail1.png').convert_alpha(),0,0.75)
-snail_rect=snail_surf.get_rect(midbottom=(700,300))
+#snail_surf=pygame.transform.rotozoom(pygame.image.load('snail1.png').convert_alpha(),0,0.75)
+#snail_rect=snail_surf.get_rect(midbottom=(700,300))
 
-player_surf=pygame.image.load('player_stand.png').convert_alpha()
-player_rect=player_surf.get_rect(bottomleft=(10,300))
+#player_surf=pygame.image.load('player_stand.png').convert_alpha()
+#player_rect=player_surf.get_rect(bottomleft=(10,300))
 
 player_stand=pygame.transform.rotozoom(pygame.image.load('player_stand.png').convert_alpha(),0,2)
 player_stand_rect=player_stand.get_rect(center=(400,200))
@@ -110,15 +128,16 @@ screen_message_rect=screen_message.get_rect(center=(400,50))
 screen_message2=text.render('Press Space to Jump',False,'#ffffff')
 screen_message2_rect=screen_message2.get_rect(center=(400,350))       
 
-snail_x=[700,270]
+#snail_x=[700,270]
 
 game_score=0
 
-
 game_active=0
 
-
 player_gravity=0
+
+obstacle_timer=pygame.USEREVENT +1    # IMP
+pygame.time.set_timer(obstacle_timer,1500)   #IMP
 
 while True:
 
@@ -126,11 +145,10 @@ while True:
         if event.type==QUIT:
             pygame.quit()
             exit()
-        if game_active:    
-            if event.type==KEYDOWN:
-                if event.key==K_SPACE:
-                    if player_rect.bottom > 270:
-                        player_gravity=-20
+        if game_active:   
+            if event.type==obstacle_timer:
+                obstacle_group.add(obstacle(choice(['fly','snail','snail'])))  #IMP  
+
             
     if game_active:
         screen.blit(sky_surface,(0,0))
@@ -140,25 +158,24 @@ while True:
         #pygame.draw.rect(screen,'pink',text_rect)
         #screen.blit(text_surf,text_rect)
         
-        snail_rect.left -=4
-        if snail_rect.right< 0:
-            snail_rect.left=800
+        #snail_rect.left -=4
+        #if snail_rect.right< 0:
+        #    snail_rect.left=800
 
-        if player_rect.colliderect(snail_rect):
-            snail_rect.left=800
-            game_active=0
+        #if player_rect.colliderect(snail_rect):
+         #   snail_rect.left=800
+          #  game_active=0
 
+        game_active=collision_sprite()
+
+        
         player.update()
         player.draw(screen)
 
-        screen.blit(snail_surf,snail_rect)
-
-        player_rect.y+=player_gravity
-        player_gravity+=1
-
-        if player_rect.bottom>=300:
-            player_rect.bottom=300
-        screen.blit(player_surf,player_rect)
+        obstacle_group.update()
+        obstacle_group.draw(screen)
+        
+        #screen.blit(snail_surf,snail_rect)
 
         game_score+=1
         current_score=(int)(game_score/60)
@@ -171,8 +188,8 @@ while True:
         screen.fill((94,129,162))
         screen.blit(player_stand,player_stand_rect)
         screen.blit(screen_message,screen_message_rect)
-        player_gravity=0
-        player_rect.bottom=300
+        #player_gravity=0
+        #player_rect.bottom=300
 
         if game_score:
             score_text=text.render(f'Score: {current_score}',False,'#ffffff')
